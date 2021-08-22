@@ -1,0 +1,37 @@
+{
+  "name": "nodejs-bff-demo",
+  "version": "1.0.0",
+  "description": "nodejs bff demo, with net based rpc",
+  "main": "test/bff.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "start:bff": "node test/bff.js",
+    "start:service": "babel-node test/service.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ginobilee/nodejs-bff-demo.git"
+  },
+  "keywords": [
+    "bff"
+  ],
+  "author": "mg20<skyleedong@gmail.com>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ginobilee/nodejs-bff-demo/issues"
+  },
+  "homepage": "https://github.com/ginobilee/nodejs-bff-demo#readme",
+  "dependencies": {
+    "@babel/core": "^7.15.0",
+    "@babel/node": "^7.14.9",
+    "body-parser": "^1.19.0",
+    "express": "^4.17.1"
+  },
+  "engines": {
+      "node": ">=14.17.2"
+  }
+}
