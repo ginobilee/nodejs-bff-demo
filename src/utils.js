@@ -33,6 +33,17 @@ export function buildDataBuffer(payload) {
   return Buffer.byteLength(encoded) + '\n' + encoded;
 }
 
+/**
+ * 
+ * @param {*} data 通过 rpc 传达的数据
+ * @param {*} lengthObj 用来储存 buffer data, 结构如下
+    {
+      bufferBytes: undefined, // 即已经收到的 buffer data
+      getLength: true, // 标识是否需要解析出字节长度字段
+      length: -1 // 解析出来的 字节长度 , 据此以对 buffer data 截断进行解析
+    }
+    当消息体过大时，会多次触发 on('data') ，所以需要用它作为容器存储 buffer data，等其长度 >= payload.length 后再解析
+ */
 export function parseRpcResponse(data, lengthObj) {
   if (lengthObj.bufferBytes && lengthObj.bufferBytes.length > 0) {
     const tmpBuff = Buffer.alloc(lengthObj.bufferBytes.length + data.length);
@@ -87,7 +98,6 @@ export function parseBufferDatas() {
 
     // 当数据长度没有达到 length 时，不进行此步骤
     if (this.bufferBytes && this.bufferBytes.length >= this.length) {
-      finished = true
       const dataStr = this.bufferBytes.slice(0, this.length).toString();
       // 处理完第一个data后，需要查看是否还有未解析完的数据继续解析
       this.getLength = true;
@@ -108,6 +118,8 @@ export function parseBufferDatas() {
       // 继续处理下面的指令
       if (this.bufferBytes && this.bufferBytes.length > 0) {
         parseBufferData.call(this);
+      } else {
+        finished = true
       }
     }
   };

@@ -1,7 +1,7 @@
 import net from 'net';
 import { buildDataBuffer, log as defaultLogger, parseRpcResponse } from './utils.js';
 
-export default class LightRPCServer {
+export default class RPCServer {
   constructor(services, logger) {
     // super(services, logger)
     this.logger = logger || defaultLogger;
@@ -42,23 +42,36 @@ function getOnDataFn(connection, lengthObj, rpcInstance) {
   };
 }
 
-function fnExecution(fData, c, rpcInstance) {
-  if (!rpcInstance.services[fData.fn]) {
-    c.write(buildDataBuffer({ id: fData.id, error: { code: 'UNKNOWN_COMMAND' }, msg: '未找到对应的方法' }))
+function fnExecution(reqData, c, rpcInstance) {
+  if (!rpcInstance.services[reqData.fn]) {
+    c.write(buildResponse({ reqData, msg: '未找到对应的方法', error: { code: 'UNKNOWN_COMMAND' } }))
     return
   }
 
-  const args = fData.args;
+  const args = reqData.args;
   try {
-    const fn = rpcInstance.services[fData.fn]
-    console.log('fdata: ', fData)
+    const fn = rpcInstance.services[reqData.fn]
     const argList = Array.isArray(args) ? args : [args]
-    const response = fn.apply({}, argList)
-    c.write(buildDataBuffer({ id: fData.id, data: response }))
+    const data = fn.apply({}, argList)
+    c.write(buildResponse({ reqData, data }))
   }
-  catch (err) {
+  catch (error) {
     // log.e(err);
-
-    c.write(buildDataBuffer({ id: fData.id, error: err }));
+    c.write(buildResponse({ reqData, error, msg: '执行方法错误' }));
   }
 };
+/**
+ * 
+ * @param {*} oPayload 格式如下
+ * {
+ *   reqData: { id: 'x', fn: 'fnname', args: [] } 请求
+ *   data: 方法执行结果
+ *   msg: 错误描述
+ *   error: 错误信息
+ * }
+ */
+function buildResponse(oPayload) {
+  const responsePayload = { id: oPayload.reqData.id, ...oPayload }
+  delete responsePayload.reqData
+  return buildDataBuffer(responsePayload)
+}
