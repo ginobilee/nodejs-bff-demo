@@ -12,3 +12,7 @@ $ yarn start:bff # 启动 bff 应用
 
 ## 解读
 参考 []()
+
+## 参考
+
+ - [nodejs-light_rpc](https://github.com/romulka/nodejs-light_rpc)
